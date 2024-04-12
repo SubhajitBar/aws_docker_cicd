@@ -1,0 +1,42 @@
+name: CICD
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Docker Login
+        uses: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{secrets.DOCKER_PASSWORD}}
+
+      - name: Build Docker Image
+        uses: docker build -t echoech0/reactapp .
+    
+      - name: Publish Image to Docker Hub
+        uses: docker push echoech0/reactapp:latest 
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+  deploy:
+    needs: build
+    runs-on: aws-ec2
+    steps:
+      - name: Pull Docker Image
+        uses: docker pull echoech0/reactapp:latest
+
+      - name: Delete Old Container 
+        uses: docker rm -f reactContainer
+
+      - name: Run Docker Container
+        uses: docker run -d -p 3000:80 --name reactContainer echoech0/reactapp
