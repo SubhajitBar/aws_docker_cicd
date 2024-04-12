@@ -32,7 +32,11 @@ jobs:
         run: docker pull echoech0/reactapp:latest
 
       - name: Delete Old Image
-        run: docker rmi -f echoech0/reactapp
+        run: |
+          IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep '^reactContainer' | grep -v ':latest')
+          for IMAGE in $IMAGES; do
+            docker rmi $IMAGE
+          done
 
       - name: Delete Old Container 
         run: docker rm -f reactContainer
