@@ -22,11 +22,7 @@ jobs:
       - name: Publish Image to Docker Hub
         uses: docker push echoech0/reactapp:latest 
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
+    
 
   deploy:
     needs: build
