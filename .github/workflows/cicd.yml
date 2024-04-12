@@ -28,18 +28,14 @@ jobs:
     needs: build
     runs-on: aws-ec2
     steps:
-      - name: Pull Docker Image
-        run: docker pull echoech0/reactapp:latest
-
-      - name: Delete Old Image
-        run: |
-          IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep '^reactContainer' | grep -v ':latest')
-          for IMAGE in $IMAGES; do
-            docker rmi $IMAGE
-          done
-
       - name: Delete Old Container 
         run: docker rm -f reactContainer
+
+      - name: Delete Old Image
+        run: docker rmi -f echoech0/reactapp
+
+      - name: Pull Docker Image
+        run: docker pull echoech0/reactapp:latest
 
       - name: Run Docker Container
         run: docker run -d -p 3000:80 --name reactContainer echoech0/reactapp
